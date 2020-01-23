@@ -43,7 +43,7 @@ public class OpeningWindowController implements Initializable {
             System.exit(0);
         });
         NetworkManager.connect();
-        Thread networkThread = new Thread(NetworkManager::readData);
+        Thread networkThread = new Thread(NetworkManager::listenToNetwork);
         networkThread.start();
         FadeTransition fadeIn = new FadeTransition(Duration.millis(2000), anchorPane);
         fadeIn.setFromValue(0.0);

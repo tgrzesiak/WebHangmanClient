@@ -36,16 +36,25 @@ public class GameWindowController implements Initializable {
     private Button buttonA;
 
     @FXML
+    private Button buttonĄ;
+
+    @FXML
     private Button buttonB;
 
     @FXML
     private Button buttonC;
 
     @FXML
+    private Button buttonĆ;
+
+    @FXML
     private Button buttonD;
 
     @FXML
     private Button buttonE;
+
+    @FXML
+    private Button buttonĘ;
 
     @FXML
     private Button buttonF;
@@ -69,13 +78,22 @@ public class GameWindowController implements Initializable {
     private Button buttonL;
 
     @FXML
+    private Button buttonŁ;
+
+    @FXML
     private Button buttonM;
 
     @FXML
     private Button buttonN;
 
     @FXML
+    private Button buttonŃ;
+
+    @FXML
     private Button buttonO;
+
+    @FXML
+    private Button buttonÓ;
 
     @FXML
     private Button buttonP;
@@ -85,6 +103,9 @@ public class GameWindowController implements Initializable {
 
     @FXML
     private Button buttonS;
+
+    @FXML
+    private Button buttonŚ;
 
     @FXML
     private Button buttonT;
@@ -100,6 +121,12 @@ public class GameWindowController implements Initializable {
 
     @FXML
     private Button buttonZ;
+
+    @FXML
+    private Button buttonŹ;
+
+    @FXML
+    private Button buttonŻ;
 
     @FXML
     private void newWord(MouseEvent event) {
@@ -126,7 +153,6 @@ public class GameWindowController implements Initializable {
             wordLabel.setUnderline(true);
         }
         else button.setDisable(true);
-        //TODO wyślij do serwera wiadomość o ilości odgadniętych liter
     }
 
 
@@ -144,10 +170,13 @@ public class GameWindowController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         buttons = new ArrayList<>();
         buttons.add(buttonA);
+        buttons.add(buttonĄ);
         buttons.add(buttonB);
         buttons.add(buttonC);
+        buttons.add(buttonĆ);
         buttons.add(buttonD);
         buttons.add(buttonE);
+        buttons.add(buttonĘ);
         buttons.add(buttonF);
         buttons.add(buttonG);
         buttons.add(buttonH);
@@ -155,52 +184,57 @@ public class GameWindowController implements Initializable {
         buttons.add(buttonJ);
         buttons.add(buttonK);
         buttons.add(buttonL);
+        buttons.add(buttonŁ);
         buttons.add(buttonM);
         buttons.add(buttonN);
+        buttons.add(buttonŃ);
         buttons.add(buttonO);
+        buttons.add(buttonÓ);
         buttons.add(buttonP);
         buttons.add(buttonR);
         buttons.add(buttonS);
+        buttons.add(buttonŚ);
         buttons.add(buttonT);
         buttons.add(buttonU);
         buttons.add(buttonW);
         buttons.add(buttonY);
         buttons.add(buttonZ);
+        buttons.add(buttonŹ);
+        buttons.add(buttonŻ);
         NetworkManager.getStage().setScene(new Scene(anchorPane));
         wordLabel.setText(NetworkManager.getRound().getHiddenWord());
-        Thread moveToWaitingWindow = new Thread(){
-            @Override
-            public void run() {
-                synchronized (Integer.TYPE) {
-                    try {
-                        Integer.TYPE.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (NetworkManager.getRound().getHiddenLettersCounter() != 0) {
-                    for (Button but : buttons) {
-                        but.setDisable(true);
-                    }
-                    wordLabel.setTextFill(Paint.valueOf("green"));
-                    wordLabel.setUnderline(true);
-                }
-                if (NetworkManager.getPlayerState() == PlayerState.COUNTDOWN) {
-                    Platform.runLater(() -> label.setText((NetworkManager.getCountdown() + 1) + "!"));
-                    continue;
-                }
-                if (NetworkManager.getPlayerState() == PlayerState.ROUND) {
-                    Platform.runLater(() -> {
-                        try {
-                            FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("gameWindow.fxml")));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                    break;
-                }
-            }
-        };
+        Thread moveToWaitingWindow = new Thread(this::run);
         moveToWaitingWindow.start();
+    }
+
+    private void run() {
+        synchronized (Integer.TYPE) {
+            try {
+                Integer.TYPE.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if (NetworkManager.getRound().getHiddenLettersCounter() != 0) {
+            Platform.runLater(() -> {
+                for (Button but : buttons) {
+                    but.setDisable(true);
+                }
+                wordLabel.setTextFill(Paint.valueOf("red"));
+                wordLabel.setUnderline(true);
+            });
+        }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("waitingWindow.fxml")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
