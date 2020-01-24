@@ -95,9 +95,10 @@ public class NetworkManager {
         while(!data.equals("end")) {
             System.out.println(data);
             String[] values = data.split("-");
-            Integer[] tmp = round.getOtherScores();
-            tmp[Integer.parseInt(values[1])] = Integer.parseInt(values[0]);
-            round.setOtherScores(tmp);
+            String[] tmp = round.getOtherNamesScores();
+            int index = Integer.parseInt(values[1])-8;
+            tmp[index] = tmp[index].substring(0, 8) + values[0];
+            round.setOtherNamesScores(tmp);
             sendSyncSignal();
             data = scanner.next();
             //TODO na serwerze błędny format - dwa myślniki czasem
@@ -118,12 +119,19 @@ public class NetworkManager {
             countdownTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    if (countdown-- >= 0) sendSyncSignal();
+                    countdown--;
+                    if (countdown >= 0) sendSyncSignal();
                 }
             }, 0, 1000);
 
             playersCounter = scanner.nextInt();
             System.out.println("playerCounter: "+ playersCounter);
+            if (playersCounter == 1) {
+                playerState = PlayerState.TOO_FEW_PLAYERS;
+                countdownTimer.cancel();
+                sendSyncSignal();
+                continue;
+            }
             int roundNumber = scanner.nextInt();
             System.out.println("roundNumber: "+roundNumber);
             String word = scanner.next();

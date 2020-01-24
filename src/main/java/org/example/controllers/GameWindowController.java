@@ -1,7 +1,9 @@
 package org.example.controllers;
 
 import javafx.application.Platform;
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -129,7 +131,7 @@ public class GameWindowController implements Initializable {
     private Button buttonŻ;
 
     @FXML
-    private ListView<Integer> scoresListView;
+    private ListView<String> scoresListView;
 
     @FXML
     private Label textLabel;
@@ -159,7 +161,7 @@ public class GameWindowController implements Initializable {
                 return;
             }
         }
-        getRound().updateHiddenWord(button.getText().toCharArray()[0]);
+        int diffrence = getRound().updateHiddenWord(button.getText().toCharArray()[0]);
         wordLabel.setText(getRound().getHiddenWord());
         if (getRound().getHiddenLettersCounter() == 0) {
             for (Button but : buttons) {
@@ -169,15 +171,15 @@ public class GameWindowController implements Initializable {
             wordLabel.setUnderline(true);
         }
         else button.setDisable(true);
-        timer = new Timer();
-        timer.schedule(timerTask, getRound().getButtonDelay(), getRound().getButtonDelay());
-        //TODO po naciśnięciu przycisku, timerTask nie ustawia się na nowo
+        if (diffrence == 0) {
+            updateLives();
+        }
+        setTimer();
     }
 
 
     private ArrayList<Button> buttons;
     private Timer timer;
-    private TimerTask timerTask;
 
     private Button findButton(String text) {
         for (Button button : buttons) {
@@ -227,24 +229,32 @@ public class GameWindowController implements Initializable {
         wordLabel.setText(getRound().getHiddenWord());
         Thread moveToWaitingWindow = new Thread(this::run);
         moveToWaitingWindow.start();
-        scoresListView.setItems(FXCollections.observableArrayList(getRound().getOtherScores()));
+        scoresListView.setItems(FXCollections.observableArrayList(getRound().getOtherNamesScores()));
         livesLabel.setText(String.valueOf(getRound().getLives()));
         roundLabel.setText(String.valueOf(getRound().getRoundNumber()));
+        setTimer();
+    }
+
+    private void setTimer() {
         timer = new Timer();
-        timerTask = new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                int lives = getRound().getLives();
-                getRound().setLives(--lives);
-                Platform.runLater(() -> livesLabel.setText(String.valueOf(getRound().getLives())));
-                if (lives == 0) {
-                    setPlayerState(PlayerState.END_OF_ROUND);
-                    sendSyncSignal();
-                    return;
-                }
+                updateLives();
             }
-        };
-        timer.schedule(timerTask, getRound().getButtonDelay(), getRound().getButtonDelay());
+        }, getRound().getButtonDelay(), getRound().getButtonDelay());
+    }
+
+    private void updateLives() {
+        int lives = getRound().getLives();
+        if (lives > 0) {
+            getRound().setLives(--lives);
+            Platform.runLater(() -> livesLabel.setText(String.valueOf(getRound().getLives())));
+        }
+        if (lives == 0) {
+            setPlayerState(PlayerState.END_OF_ROUND);
+            sendSyncSignal();
+        }
     }
 
     private void run() {
@@ -287,6 +297,6 @@ public class GameWindowController implements Initializable {
     }
 
     private void updateScores() {
-        System.out.println("game window notified");
+        scoresListView.setItems(FXCollections.observableArrayList(getRound().getOtherNamesScores()));
     }
 }

@@ -42,6 +42,10 @@ public class WaitingWindowController implements Initializable {
                 Platform.runLater(() -> label.setText((NetworkManager.getCountdown() + 1) + "!"));
                 continue;
             }
+            if (NetworkManager.getPlayerState()== PlayerState.TOO_FEW_PLAYERS) {
+                Platform.runLater(() -> label.setText("Jesteś sam na serwerze, poczekaj na innych graczy"));
+                continue;
+            }
             if (NetworkManager.getPlayerState() == PlayerState.ROUND) {
                 Platform.runLater(() -> {
                     try {

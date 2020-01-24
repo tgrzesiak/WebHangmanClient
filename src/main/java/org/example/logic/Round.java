@@ -1,7 +1,7 @@
 package org.example.logic;
 
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Round {
     private int roundNumber;
@@ -10,9 +10,17 @@ public class Round {
     private String hiddenWord;
     private int totalLettersCounter;
     private int hiddenLettersCounter;
-    private Integer[] otherScores;
     private int lives;
     private int buttonDelay;
+    private String[] otherNamesScores;
+
+    public String[] getOtherNamesScores() {
+        return otherNamesScores;
+    }
+
+    public void setOtherNamesScores(String[] otherNamesScores) {
+        this.otherNamesScores = otherNamesScores;
+    }
 
     public int getButtonDelay() {return this.buttonDelay; }
 
@@ -30,9 +38,7 @@ public class Round {
 
     public int getHiddenLettersCounter() { return this.hiddenLettersCounter; }
 
-    public Integer[] getOtherScores() { return this.otherScores; }
 
-    public void setOtherScores(Integer[] otherScores) { this.otherScores = otherScores; }
 
     public Round(String word, int roundNumber, int playersCounter) {
         this.roundNumber = roundNumber;
@@ -46,14 +52,14 @@ public class Round {
         }
         this.totalLettersCounter = this.word.replaceAll(" ", "").length();
         this.hiddenLettersCounter = this.totalLettersCounter;
-        this.otherScores = new Integer[playersCounter];
-        for (Integer in : this.otherScores) in = 0;
+        this.otherNamesScores = new String[playersCounter];
+        for (int i=0; i<playersCounter; i++) this.otherNamesScores[i] = "Gracz" + (i + 1) + ": 0";
         this.lives = 5;
-        if(roundNumber < 4) this.buttonDelay = 10000;
-        else this.buttonDelay = 5000;
+        if(roundNumber < 4) this.buttonDelay = 20000;
+        else this.buttonDelay = 10000;
     }
 
-    public void updateHiddenWord(char letter) {
+    public int updateHiddenWord(char letter) {
         int prevHiddenLettersCounter = this.hiddenLettersCounter;
         for (int i=0; i<this.word.length(); i++) {
             if (this.word.charAt(i) == letter && this.hiddenWord.charAt(i) == '_') {
@@ -68,5 +74,6 @@ public class Round {
                 e.printStackTrace();
             }
         }
+        return prevHiddenLettersCounter - this.hiddenLettersCounter;
     }
 }
