@@ -35,7 +35,7 @@ public class WaitingWindowController implements Initializable {
                 }
             }
             if (NetworkManager.getPlayerState() == PlayerState.IN_QUEUE) {
-                Platform.runLater(() -> label.setText("Gra rozpocznie się za około " + NetworkManager.getQueueTimeout() + " sekund..."));
+                Platform.runLater(() -> label.setText("Gracze mogą dołączać do gry..."));
                 continue;
             }
             if (NetworkManager.getPlayerState() == PlayerState.COUNTDOWN) {
@@ -60,7 +60,7 @@ public class WaitingWindowController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         NetworkManager.getStage().setScene(new Scene(anchorPane));
         if (NetworkManager.getPlayerState() == PlayerState.IN_QUEUE)
-            label.setText("Gra rozpocznie się za chwilę...");
+            label.setText("Gracze mogą dołączać do gry...");
         else
             label.setText("Gra rozpocznie się po zakończeniu poprzedniej");
         Thread labelUpdateThread = new Thread(this::updateLabel);

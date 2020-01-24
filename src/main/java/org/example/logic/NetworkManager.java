@@ -21,7 +21,7 @@ public class NetworkManager {
     private static PlayerState playerState = PlayerState.WAIT_FOR_BEGINNING;
     private volatile static int queueTimeout;
     private volatile static int countdown;
-    private volatile static int playerCounter;
+    private volatile static int playersCounter;
     private static int TIMEOUT = 10;
 
     private static Stage stage;
@@ -53,6 +53,8 @@ public class NetworkManager {
         NetworkManager.host = host;
     }
 
+    public static void setPlayerState(PlayerState playerState) { NetworkManager.playerState = playerState; }
+
     public static PlayerState getPlayerState() {
         return NetworkManager.playerState;
     }
@@ -74,7 +76,7 @@ public class NetworkManager {
         }
     }
 
-    private static void sendSyncSignal() {
+    public static void sendSyncSignal() {
         synchronized (Integer.TYPE) {
             Integer.TYPE.notifyAll();
         }
@@ -88,31 +90,30 @@ public class NetworkManager {
         System.out.println(str);
     }
 
+    private static void readScores() {
+        String data = scanner.next();
+        while(!data.equals("end")) {
+            System.out.println(data);
+            String[] values = data.split("-");
+            Integer[] tmp = round.getOtherScores();
+            tmp[Integer.parseInt(values[1])] = Integer.parseInt(values[0]);
+            round.setOtherScores(tmp);
+            sendSyncSignal();
+            data = scanner.next();
+            //TODO na serwerze błędny format - dwa myślniki czasem
+        }
+    }
+
     public static void listenToNetwork() {
-        /*while (playerState == PlayerState.WAIT_FOR_BEGINNING) {
-            confirmString("welcome");
-            if (scanner.hasNextInt()) {
-                queueTimeout = TIMEOUT - scanner.nextInt();
-                System.out.println("queueTimeout: "+queueTimeout);
-                playerState = PlayerState.IN_QUEUE;
-                sendSyncSignal();
-            } else {
-                confirmString("wait");
-                playerState = PlayerState.WAIT_FOR_BEGINNING;
-            }
-        }*/
         if (!scanner.hasNextInt()) confirmString("wait");
         queueTimeout = scanner.nextInt();
         playerState = PlayerState.IN_QUEUE;
-        System.out.println("Odliczanie rozpocznie się za około " + queueTimeout + " sekund");
         while(true) {
             countdown = scanner.nextInt();
-            System.out.println("countdown: "+countdown);
             //TODO co robi klient i serwer kiedy jest jeden gracz?
             playerState = PlayerState.COUNTDOWN;
             sendSyncSignal();
 
-            //odliczanie od `countdown` do 0
             Timer countdownTimer = new Timer();
             countdownTimer.schedule(new TimerTask() {
                 @Override
@@ -121,26 +122,26 @@ public class NetworkManager {
                 }
             }, 0, 1000);
 
-            playerCounter = scanner.nextInt();
-            System.out.println("playerCounter: "+playerCounter);
+            playersCounter = scanner.nextInt();
+            System.out.println("playerCounter: "+ playersCounter);
             int roundNumber = scanner.nextInt();
             System.out.println("roundNumber: "+roundNumber);
             String word = scanner.next();
-            System.out.println("word: "+word);
 
-            //anulowanie timera synchornizowane przysłaniem kolejnych danych z serwera
             countdownTimer.cancel();
             if (!word.equals(word.toUpperCase())) {
                 System.out.println("Wystąpił błąd, przepraszamy...");
                 System.exit(0);
             }
 
-            round = new Round(word);
+            round = new Round(word, roundNumber, playersCounter);
             playerState = PlayerState.ROUND;
             sendSyncSignal();
 
-            confirmString("end");
+            readScores();
+            playerState = PlayerState.END_OF_ROUND;
             sendSyncSignal();
+
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {

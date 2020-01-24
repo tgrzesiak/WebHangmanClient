@@ -1,33 +1,33 @@
 package org.example.controllers;
 
 import javafx.application.Platform;
-import javafx.event.EventHandler;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
-import javafx.stage.Popup;
-import org.example.logic.NetworkManager;
 import org.example.logic.PlayerState;
 
 import java.io.IOException;
 import java.net.URL;
-import java.rmi.UnexpectedException;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
+
+import static org.example.logic.NetworkManager.*;
 
 public class GameWindowController implements Initializable {
 
     @FXML
     private AnchorPane anchorPane;
+
+    @FXML
+    private Label categoryLabel;
 
     @FXML
     private Label wordLabel;
@@ -129,7 +129,23 @@ public class GameWindowController implements Initializable {
     private Button buttonŻ;
 
     @FXML
+    private ListView<Integer> scoresListView;
+
+    @FXML
+    private Label textLabel;
+
+    @FXML
+    private Label livesLabel;
+
+    @FXML
+    private Label textLabel1;
+
+    @FXML
+    private Label roundLabel;
+
+    @FXML
     private void newWord(MouseEvent event) {
+        timer.cancel();
         Object target = event.getTarget();
         Button button;
         if (target instanceof Button) {
@@ -143,9 +159,9 @@ public class GameWindowController implements Initializable {
                 return;
             }
         }
-        NetworkManager.getRound().updateHiddenWord(button.getText().toCharArray()[0]);
-        wordLabel.setText(NetworkManager.getRound().getHiddenWord());
-        if (NetworkManager.getRound().getHiddenLettersCounter() == 0) {
+        getRound().updateHiddenWord(button.getText().toCharArray()[0]);
+        wordLabel.setText(getRound().getHiddenWord());
+        if (getRound().getHiddenLettersCounter() == 0) {
             for (Button but : buttons) {
                 but.setDisable(true);
             }
@@ -153,10 +169,15 @@ public class GameWindowController implements Initializable {
             wordLabel.setUnderline(true);
         }
         else button.setDisable(true);
+        timer = new Timer();
+        timer.schedule(timerTask, getRound().getButtonDelay(), getRound().getButtonDelay());
+        //TODO po naciśnięciu przycisku, timerTask nie ustawia się na nowo
     }
 
 
     private ArrayList<Button> buttons;
+    private Timer timer;
+    private TimerTask timerTask;
 
     private Button findButton(String text) {
         for (Button button : buttons) {
@@ -201,40 +222,71 @@ public class GameWindowController implements Initializable {
         buttons.add(buttonZ);
         buttons.add(buttonŹ);
         buttons.add(buttonŻ);
-        NetworkManager.getStage().setScene(new Scene(anchorPane));
-        wordLabel.setText(NetworkManager.getRound().getHiddenWord());
+        getStage().setScene(new Scene(anchorPane));
+        categoryLabel.setText(getRound().getCategory());
+        wordLabel.setText(getRound().getHiddenWord());
         Thread moveToWaitingWindow = new Thread(this::run);
         moveToWaitingWindow.start();
+        scoresListView.setItems(FXCollections.observableArrayList(getRound().getOtherScores()));
+        livesLabel.setText(String.valueOf(getRound().getLives()));
+        roundLabel.setText(String.valueOf(getRound().getRoundNumber()));
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                int lives = getRound().getLives();
+                getRound().setLives(--lives);
+                Platform.runLater(() -> livesLabel.setText(String.valueOf(getRound().getLives())));
+                if (lives == 0) {
+                    setPlayerState(PlayerState.END_OF_ROUND);
+                    sendSyncSignal();
+                    return;
+                }
+            }
+        };
+        timer.schedule(timerTask, getRound().getButtonDelay(), getRound().getButtonDelay());
     }
 
     private void run() {
-        synchronized (Integer.TYPE) {
-            try {
-                Integer.TYPE.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        if (NetworkManager.getRound().getHiddenLettersCounter() != 0) {
-            Platform.runLater(() -> {
-                for (Button but : buttons) {
-                    but.setDisable(true);
+        while (true) {
+            synchronized (Integer.TYPE) {
+                try {
+                    Integer.TYPE.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                wordLabel.setTextFill(Paint.valueOf("red"));
-                wordLabel.setUnderline(true);
-            });
-        }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("waitingWindow.fxml")));
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        });
+            if (getPlayerState() == PlayerState.ROUND) {
+                Platform.runLater(this::updateScores);
+                continue;
+            }
+            if (getPlayerState() == PlayerState.END_OF_ROUND) {
+                if (getRound().getHiddenLettersCounter() != 0) {
+                    Platform.runLater(() -> {
+                        for (Button but : buttons) {
+                            but.setDisable(true);
+                        }
+                        wordLabel.setTextFill(Paint.valueOf("red"));
+                        wordLabel.setUnderline(true);
+                    });
+                }
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Platform.runLater(() -> {
+                    try {
+                        FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("waitingWindow.fxml")));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        }
+    }
+
+    private void updateScores() {
+        System.out.println("game window notified");
     }
 }

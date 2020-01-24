@@ -4,11 +4,25 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Round {
+    private int roundNumber;
     private String category;
     private String word;
     private String hiddenWord;
     private int totalLettersCounter;
     private int hiddenLettersCounter;
+    private Integer[] otherScores;
+    private int lives;
+    private int buttonDelay;
+
+    public int getButtonDelay() {return this.buttonDelay; }
+
+    public int getRoundNumber() { return this.roundNumber; }
+
+    public String getCategory() { return this.category; }
+
+    public int getLives() { return this.lives; }
+
+    public void setLives(int lives) { this.lives = lives; }
 
     public String getHiddenWord() {
         return this.hiddenWord;
@@ -16,7 +30,12 @@ public class Round {
 
     public int getHiddenLettersCounter() { return this.hiddenLettersCounter; }
 
-    public Round(String word) {
+    public Integer[] getOtherScores() { return this.otherScores; }
+
+    public void setOtherScores(Integer[] otherScores) { this.otherScores = otherScores; }
+
+    public Round(String word, int roundNumber, int playersCounter) {
+        this.roundNumber = roundNumber;
         String[] words = word.split(":");
         this.category = words[0];
         this.word = words[1].replaceAll("_", " ");
@@ -27,27 +46,11 @@ public class Round {
         }
         this.totalLettersCounter = this.word.replaceAll(" ", "").length();
         this.hiddenLettersCounter = this.totalLettersCounter;
-    }
-
-    public void play() {
-        System.out.println("Enter letter you think the word consists of:");
-        Scanner letterScanner = new Scanner(System.in);
-        //TODO jak zignorować dane z InputStreamu, które były tam napisane wcześniej
-
-        while (hiddenLettersCounter > 0 ){
-            System.out.println(hiddenWord);
-            char letter;
-            letter = letterScanner.next().toUpperCase().toCharArray()[0];
-            updateHiddenWord(letter);
-        }
-        if (hiddenLettersCounter == 0) {
-            System.out.println("Congratulations! You guessed right!");
-            //TODO co wysłać do serwera?
-        } else {
-            System.out.println("Nope! maybe next time ;)");
-            //TODO co wysłać do serwera?
-            //TODO zrobić żeby czekał na początek kolejnej GRY, a nie rundy
-        }
+        this.otherScores = new Integer[playersCounter];
+        for (Integer in : this.otherScores) in = 0;
+        this.lives = 5;
+        if(roundNumber < 4) this.buttonDelay = 10000;
+        else this.buttonDelay = 5000;
     }
 
     public void updateHiddenWord(char letter) {
@@ -59,9 +62,8 @@ public class Round {
             }
         }
         if (prevHiddenLettersCounter > this.hiddenLettersCounter) {
-            System.out.println("hello there");
             try {
-                NetworkManager.getSocketOS().write(totalLettersCounter - hiddenLettersCounter);
+                NetworkManager.getSocketOS().write(Integer.toString(totalLettersCounter - hiddenLettersCounter).getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
             }
