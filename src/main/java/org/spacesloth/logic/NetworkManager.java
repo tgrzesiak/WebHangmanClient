@@ -1,4 +1,4 @@
-package org.example.logic;
+package org.spacesloth.logic;
 
 import javafx.stage.Stage;
 
@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -76,42 +78,94 @@ public class NetworkManager {
         }
     }
 
+    public static void exitGame() {
+        disconnect();
+        System.out.println("Dziękujemy za grę :)");
+        System.exit(0);
+    }
+
+    public static void disconnect() {
+        sendInt(-1);
+    }
+
     public static void sendSyncSignal() {
         synchronized (Integer.TYPE) {
             Integer.TYPE.notifyAll();
         }
     }
 
-    private static void confirmString(String str) {
-        if (!scanner.next().equals(str)) {
-            System.out.println("Błąd przy odczytywaniu: " + str);
-            System.exit(0);
+    public static void sendInt(int number) {
+        try {
+            for (byte b : String.valueOf(number).getBytes(StandardCharsets.UTF_8))
+                System.out.println(b);
+            socketOS.write(String.valueOf(number).getBytes(StandardCharsets.UTF_8));
+            System.out.println("Sent: "+number);
+        } catch (IOException e) {
+            System.out.println("Nieudane wysyłanie numeru (" + number + ")");
+            //System.exit(0);
         }
-        System.out.println(str);
+    }
+
+    private static int readInt(String name) {
+        if (scanner.hasNextInt()) {
+            int smh = scanner.nextInt();
+            System.out.println(name+": "+smh);
+            return smh;
+        }
+        else {
+            System.out.println("Nieudane odczytanie numeru (" + name + ")");
+            //exitGame();
+            return -1;
+        }
+    }
+
+    private static String readString(String name) {
+        if (scanner.hasNext()) {
+            String smh = scanner.next();
+            System.out.println(name+": "+smh);
+            return smh;
+        }
+        else {
+            System.out.println("Nieudane odczytanie słowa (" + name + ")");
+            //exitGame();
+            return "";
+        }
+    }
+
+    private static void confirmString(String str) {
+        if (!readString(str).equals(str)) {
+            System.out.println("Odczytano błędne słowo (oczekiwane: " + str + ")");
+            //exitGame();
+        }
     }
 
     private static void readScores() {
-        String data = scanner.next();
-        while(!data.equals("end")) {
+        while (true) {
+            String data = readString("fd:score");
+            if (data.equals("end") | data.equals("")) break;
             System.out.println(data);
             String[] values = data.split("-");
             String[] tmp = round.getOtherNamesScores();
-            int index = Integer.parseInt(values[1])-8;
+            int index = round.matchIndex(Integer.parseInt(values[1]));
             tmp[index] = tmp[index].substring(0, 8) + values[0];
             round.setOtherNamesScores(tmp);
             sendSyncSignal();
-            data = scanner.next();
-            //TODO na serwerze błędny format - dwa myślniki czasem
         }
     }
 
     public static void listenToNetwork() {
         if (!scanner.hasNextInt()) confirmString("wait");
-        queueTimeout = scanner.nextInt();
-        playerState = PlayerState.IN_QUEUE;
+        else {
+            queueTimeout = readInt("queueTimeout");
+            playerState = PlayerState.IN_QUEUE;
+        }
         while(true) {
-            countdown = scanner.nextInt();
-            //TODO co robi klient i serwer kiedy jest jeden gracz?
+            if (!scanner.hasNextInt()) {
+                confirmString("win");
+                playerState = PlayerState.WINNER;
+                sendSyncSignal();
+            }
+            countdown = readInt("countdown");
             playerState = PlayerState.COUNTDOWN;
             sendSyncSignal();
 
@@ -119,12 +173,13 @@ public class NetworkManager {
             countdownTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    countdown--;
-                    if (countdown >= 0) sendSyncSignal();
+                    if (countdown-- > 0){
+                        sendSyncSignal();
+                    }
                 }
             }, 0, 1000);
 
-            playersCounter = scanner.nextInt();
+            playersCounter = readInt("playersCounter");
             System.out.println("playerCounter: "+ playersCounter);
             if (playersCounter == 1) {
                 playerState = PlayerState.TOO_FEW_PLAYERS;
@@ -132,9 +187,9 @@ public class NetworkManager {
                 sendSyncSignal();
                 continue;
             }
-            int roundNumber = scanner.nextInt();
+            int roundNumber = readInt("roundNumber");
             System.out.println("roundNumber: "+roundNumber);
-            String word = scanner.next();
+            String word = readString("word");
 
             countdownTimer.cancel();
             if (!word.equals(word.toUpperCase())) {
@@ -147,17 +202,10 @@ public class NetworkManager {
             sendSyncSignal();
 
             readScores();
-            playerState = PlayerState.END_OF_ROUND;
-            sendSyncSignal();
-
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (playerState == PlayerState.LOSER) {
+                System.out.println("przerwano");
+                break;
             }
-            if (round.getHiddenLettersCounter() == 0) playerState = PlayerState.IN_QUEUE;
-            else playerState = PlayerState.WAIT_FOR_BEGINNING;
-            sendSyncSignal();
 
             System.out.println("Nowa runda rozpocznie się za chwilę...");
         }

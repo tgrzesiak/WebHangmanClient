@@ -1,9 +1,7 @@
-package org.example.controllers;
+package org.spacesloth.controllers;
 
 import javafx.application.Platform;
-import javafx.beans.Observable;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -15,13 +13,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
-import org.example.logic.PlayerState;
+import org.spacesloth.logic.NetworkManager;
+import org.spacesloth.logic.PlayerState;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-import static org.example.logic.NetworkManager.*;
+import static org.spacesloth.logic.NetworkManager.*;
 
 public class GameWindowController implements Initializable {
 
@@ -116,7 +115,13 @@ public class GameWindowController implements Initializable {
     private Button buttonU;
 
     @FXML
+    private Button buttonV;
+
+    @FXML
     private Button buttonW;
+
+    @FXML
+    private Button buttonX;
 
     @FXML
     private Button buttonY;
@@ -169,12 +174,12 @@ public class GameWindowController implements Initializable {
             }
             wordLabel.setTextFill(Paint.valueOf("green"));
             wordLabel.setUnderline(true);
+            setPlayerState(PlayerState.END_OF_ROUND);
+            sendSyncSignal();
         }
         else button.setDisable(true);
-        if (diffrence == 0) {
-            updateLives();
-        }
-        setTimer();
+        if (diffrence == 0) updateLives();
+        if (getRound().getLives() > 0) setTimer();
     }
 
 
@@ -219,7 +224,9 @@ public class GameWindowController implements Initializable {
         buttons.add(buttonŚ);
         buttons.add(buttonT);
         buttons.add(buttonU);
+        buttons.add(buttonV);
         buttons.add(buttonW);
+        buttons.add(buttonX);
         buttons.add(buttonY);
         buttons.add(buttonZ);
         buttons.add(buttonŹ);
@@ -252,7 +259,14 @@ public class GameWindowController implements Initializable {
             Platform.runLater(() -> livesLabel.setText(String.valueOf(getRound().getLives())));
         }
         if (lives == 0) {
-            setPlayerState(PlayerState.END_OF_ROUND);
+            setPlayerState(PlayerState.LOSER);
+            for (Button but : buttons) {
+                but.setDisable(true);
+            }
+            wordLabel.setText(getRound().getWord());
+            wordLabel.setTextFill(Paint.valueOf("red"));
+            wordLabel.setUnderline(true);
+            disconnect();
             sendSyncSignal();
         }
     }
@@ -266,20 +280,12 @@ public class GameWindowController implements Initializable {
                     e.printStackTrace();
                 }
             }
+            System.out.println(getPlayerState());
             if (getPlayerState() == PlayerState.ROUND) {
                 Platform.runLater(this::updateScores);
                 continue;
             }
             if (getPlayerState() == PlayerState.END_OF_ROUND) {
-                if (getRound().getHiddenLettersCounter() != 0) {
-                    Platform.runLater(() -> {
-                        for (Button but : buttons) {
-                            but.setDisable(true);
-                        }
-                        wordLabel.setTextFill(Paint.valueOf("red"));
-                        wordLabel.setUnderline(true);
-                    });
-                }
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
@@ -292,6 +298,22 @@ public class GameWindowController implements Initializable {
                         e.printStackTrace();
                     }
                 });
+                break;
+            }
+            if (getPlayerState() == PlayerState.LOSER) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Platform.runLater(() -> {
+                    try {
+                        FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("chooseWindow.fxml")));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                break;
             }
         }
     }

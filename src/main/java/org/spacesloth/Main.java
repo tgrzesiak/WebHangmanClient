@@ -1,8 +1,9 @@
-package org.example.logic;
+package org.spacesloth;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
+import org.spacesloth.logic.NetworkManager;
 
 import java.util.Objects;
 

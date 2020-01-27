@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.GameWindowController">
+<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.spacesloth.controllers.GameWindowController">
    <children>
       <Label fx:id="categoryLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="179.0" layoutY="24.0" prefHeight="59.0" prefWidth="243.0" text="kategoria" textAlignment="CENTER">
          <font>
@@ -38,17 +38,19 @@
       <Button fx:id="buttonO" focusTraversable="false" layoutX="435.0" layoutY="294.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="O" />
       <Button fx:id="buttonÓ" focusTraversable="false" layoutX="485.0" layoutY="294.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Ó" />
       <Button fx:id="buttonP" focusTraversable="false" layoutX="534.0" layoutY="294.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="P" />
-      <Button fx:id="buttonR" focusTraversable="false" layoutX="60.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="R" />
-      <Button fx:id="buttonS" focusTraversable="false" layoutX="110.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="S" />
-      <Button fx:id="buttonŚ" focusTraversable="false" layoutX="160.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Ś" />
-      <Button fx:id="buttonT" focusTraversable="false" layoutX="210.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="T" />
-      <Button fx:id="buttonU" focusTraversable="false" layoutX="260.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="U" />
-      <Button fx:id="buttonW" focusTraversable="false" layoutX="310.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="W" />
-      <Button fx:id="buttonY" focusTraversable="false" layoutX="360.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Y" />
-      <Button fx:id="buttonZ" focusTraversable="false" layoutX="410.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Z" />
-      <Button fx:id="buttonŹ" focusTraversable="false" layoutX="460.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Ź" />
-      <Button fx:id="buttonŻ" focusTraversable="false" layoutX="510.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Ż" />
-      <ListView fx:id="scoresListView" layoutX="575.0" prefHeight="400.0" prefWidth="166.0" />
+      <Button fx:id="buttonR" focusTraversable="false" layoutX="32.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="R" />
+      <Button fx:id="buttonS" focusTraversable="false" layoutX="78.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="S" />
+      <Button fx:id="buttonŚ" focusTraversable="false" layoutX="124.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Ś" />
+      <Button fx:id="buttonT" focusTraversable="false" layoutX="170.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="T" />
+      <Button fx:id="buttonU" focusTraversable="false" layoutX="216.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="U" />
+      <Button fx:id="buttonV" focusTraversable="false" layoutX="262.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="V" />
+      <Button fx:id="buttonW" focusTraversable="false" layoutX="308.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="W" />
+      <Button fx:id="buttonX" focusTraversable="false" layoutX="354.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="X" />
+      <Button fx:id="buttonY" focusTraversable="false" layoutX="400.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Y" />
+      <Button fx:id="buttonZ" focusTraversable="false" layoutX="446.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Z" />
+      <Button fx:id="buttonŹ" focusTraversable="false" layoutX="492.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Ź" />
+      <Button fx:id="buttonŻ" focusTraversable="false" layoutX="538.0" layoutY="348.0" mnemonicParsing="false" onMouseClicked="#newWord" prefHeight="30.0" prefWidth="30.0" text="Ż" />
+      <ListView fx:id="scoresListView" layoutX="600.0" prefHeight="400.0" prefWidth="100.0" />
       <Label fx:id="textLabel" layoutX="14.0" layoutY="14.0" prefHeight="41.0" prefWidth="50.0" text="Życia:">
          <font>
             <Font name="Chandas" size="15.0" />

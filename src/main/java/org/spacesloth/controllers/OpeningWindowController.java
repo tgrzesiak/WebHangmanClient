@@ -1,10 +1,9 @@
-package org.example.controllers;
+package org.spacesloth.controllers;
 
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.util.Duration;
-import org.example.logic.NetworkManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -12,11 +11,14 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.spacesloth.logic.NetworkManager;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
+
+import static org.spacesloth.logic.NetworkManager.*;
 
 public class OpeningWindowController implements Initializable {
 
@@ -35,14 +37,13 @@ public class OpeningWindowController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        NetworkManager.setStage(new Stage());
-        NetworkManager.getStage().setScene(new Scene(anchorPane));
-        NetworkManager.getStage().setTitle("Wisielec © by Beata&Tomek");
-        NetworkManager.getStage().setOnCloseRequest(windowEvent -> {
-            System.out.println("Dziękujemy za grę :)");
-            System.exit(0);
+        setStage(new Stage());
+        getStage().setScene(new Scene(anchorPane));
+        getStage().setTitle("Wisielec © by Beata&Tomek");
+        connect();
+        getStage().setOnCloseRequest(windowEvent -> {
+            exitGame();
         });
-        NetworkManager.connect();
         Thread networkThread = new Thread(NetworkManager::listenToNetwork);
         networkThread.start();
         FadeTransition fadeIn = new FadeTransition(Duration.millis(2000), anchorPane);
@@ -50,7 +51,7 @@ public class OpeningWindowController implements Initializable {
         fadeIn.setToValue(1.0);
         fadeIn.play();
         fadeIn.setOnFinished(this::moveToNextScene);
-        NetworkManager.getStage().show();
+        getStage().show();
     }
 
     private void moveToNextScene(ActionEvent actionEvent) {

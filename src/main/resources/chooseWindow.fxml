@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.spacesloth.controllers.ChooseWindowController">
+   <children>
+      <Label fx:id="titleLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="37.0" layoutY="49.0" prefHeight="116.0" prefWidth="526.0" text="Przegrana!" textAlignment="CENTER">
+         <font>
+            <Font name="DejaVu Serif Bold" size="81.0" />
+         </font>
+      </Label>
+      <Button fx:id="buttonNo" layoutX="422.0" layoutY="305.0" mnemonicParsing="false" onMouseClicked="#exitGame" text="Nie" textAlignment="CENTER">
+         <font>
+            <Font size="20.0" />
+         </font></Button>
+      <Button fx:id="buttonYes" layoutX="113.0" layoutY="305.0" mnemonicParsing="false" onMouseClicked="#continueGame" text="Tak" textAlignment="CENTER">
+         <font>
+            <Font size="20.0" />
+         </font></Button>
+      <Label fx:id="helperLabel" alignment="CENTER" layoutX="60.0" layoutY="187.0" prefHeight="51.0" prefWidth="481.0" text="Czy chcesz zagrać ponownie?" textAlignment="CENTER">
+         <font>
+            <Font name="DejaVu Serif Italic" size="29.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

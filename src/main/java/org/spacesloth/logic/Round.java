@@ -1,7 +1,6 @@
-package org.example.logic;
+package org.spacesloth.logic;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Round {
     private int roundNumber;
@@ -13,6 +12,9 @@ public class Round {
     private int lives;
     private int buttonDelay;
     private String[] otherNamesScores;
+    private int[] othersDescs;
+
+    public String getWord() { return this.word; }
 
     public String[] getOtherNamesScores() {
         return otherNamesScores;
@@ -52,9 +54,11 @@ public class Round {
         }
         this.totalLettersCounter = this.word.replaceAll(" ", "").length();
         this.hiddenLettersCounter = this.totalLettersCounter;
-        this.otherNamesScores = new String[playersCounter];
-        for (int i=0; i<playersCounter; i++) this.otherNamesScores[i] = "Gracz" + (i + 1) + ": 0";
-        this.lives = 5;
+        this.otherNamesScores = new String[playersCounter-1];
+        for (int i=0; i<playersCounter-1; i++) this.otherNamesScores[i] = "Gracz" + (i + 1) + ": 0";
+        this.othersDescs = new int[playersCounter-1];
+        for (int i=0; i<playersCounter-1; i++) this.othersDescs[i] = 0;
+        this.lives = 8;
         if(roundNumber < 4) this.buttonDelay = 20000;
         else this.buttonDelay = 10000;
     }
@@ -68,12 +72,22 @@ public class Round {
             }
         }
         if (prevHiddenLettersCounter > this.hiddenLettersCounter) {
-            try {
-                NetworkManager.getSocketOS().write(Integer.toString(totalLettersCounter - hiddenLettersCounter).getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            //TODO czasem nie wysyła updatu ilości odgadniętych liter
+            NetworkManager.sendInt(this.totalLettersCounter- this.hiddenLettersCounter);
         }
         return prevHiddenLettersCounter - this.hiddenLettersCounter;
+    }
+
+    public int matchIndex(int _desc) {
+        for (int i = 0; i < this.othersDescs.length; i++) {
+            if (this.othersDescs[i] == _desc) {
+                return i;
+            }
+            if (this.othersDescs[i] == 0) {
+                this.othersDescs[i] = _desc;
+                return i;
+            }
+        }
+        return this.othersDescs.length-1;
     }
 }
