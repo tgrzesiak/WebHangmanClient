@@ -96,9 +96,7 @@ public class NetworkManager {
 
     public static void sendInt(int number) {
         try {
-            for (byte b : String.valueOf(number).getBytes(StandardCharsets.UTF_8))
-                System.out.println(b);
-            socketOS.write(String.valueOf(number).getBytes(StandardCharsets.UTF_8));
+            socketOS.write((String.valueOf(number)+"\n").getBytes());
             System.out.println("Sent: "+number);
         } catch (IOException e) {
             System.out.println("Nieudane wysyłanie numeru (" + number + ")");
@@ -174,6 +172,7 @@ public class NetworkManager {
                 @Override
                 public void run() {
                     if (countdown-- > 0){
+                        playerState = PlayerState.COUNTDOWN;
                         sendSyncSignal();
                     }
                 }

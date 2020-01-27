@@ -72,7 +72,6 @@ public class Round {
             }
         }
         if (prevHiddenLettersCounter > this.hiddenLettersCounter) {
-            //TODO czasem nie wysyła updatu ilości odgadniętych liter
             NetworkManager.sendInt(this.totalLettersCounter- this.hiddenLettersCounter);
         }
         return prevHiddenLettersCounter - this.hiddenLettersCounter;

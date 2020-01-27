@@ -178,8 +178,11 @@ public class GameWindowController implements Initializable {
             sendSyncSignal();
         }
         else button.setDisable(true);
-        if (diffrence == 0) updateLives();
+        if (diffrence == 0) {
+            updateLives();
+        }
         if (getRound().getLives() > 0) setTimer();
+        //TODO coś nie tak z timerem, nie zatrzymuje się po rundzie albo uruchamia na nowo z początkiem następnej
     }
 
 
