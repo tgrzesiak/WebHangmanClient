@@ -9,7 +9,7 @@ public class Round {
     private String hiddenWord;
     private int totalLettersCounter;
     private int hiddenLettersCounter;
-    private int lives;
+    private static int lives;
     private int buttonDelay;
     private String[] otherNamesScores;
     private int[] othersDescs;
@@ -30,9 +30,9 @@ public class Round {
 
     public String getCategory() { return this.category; }
 
-    public int getLives() { return this.lives; }
+    public int getLives() { return Round.lives; }
 
-    public void setLives(int lives) { this.lives = lives; }
+    public void setLives(int lives) { Round.lives = lives; }
 
     public String getHiddenWord() {
         return this.hiddenWord;
@@ -58,7 +58,8 @@ public class Round {
         for (int i=0; i<playersCounter-1; i++) this.otherNamesScores[i] = "Gracz" + (i + 1) + ": 0";
         this.othersDescs = new int[playersCounter-1];
         for (int i=0; i<playersCounter-1; i++) this.othersDescs[i] = 0;
-        this.lives = 8;
+        if (this.roundNumber < 5) Round.lives = 8;
+        if (this.roundNumber == 5) Round.lives = 12;
         if(roundNumber < 4) this.buttonDelay = 20000;
         else this.buttonDelay = 10000;
     }

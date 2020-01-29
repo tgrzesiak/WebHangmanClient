@@ -8,7 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import org.spacesloth.logic.NetworkManager;
-import org.spacesloth.logic.PlayerState;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,6 +15,7 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static org.spacesloth.logic.NetworkManager.*;
+import static org.spacesloth.logic.PlayerState.*;
 
 public class ChooseWindowController implements Initializable {
 
@@ -39,7 +39,7 @@ public class ChooseWindowController implements Initializable {
         connect();
         Thread networkThread = new Thread(NetworkManager::listenToNetwork);
         networkThread.start();
-        setPlayerState(PlayerState.WAIT_FOR_BEGINNING);
+        setPlayerState(WAIT_FOR_BEGINNING);
         try {
             FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("waitingWindow.fxml")));
         } catch (IOException e) {
@@ -55,5 +55,9 @@ public class ChooseWindowController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         getStage().setScene(new Scene(anchorPane));
+        if (getPlayerState() == WINNER)
+            titleLabel.setText("WYGRANA!!");
+        if (getPlayerState() == LOSER)
+            titleLabel.setText("Przegrana!");
     }
 }

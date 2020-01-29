@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.*;
 
 import static org.spacesloth.logic.NetworkManager.*;
+import static org.spacesloth.logic.PlayerState.*;
 
 public class GameWindowController implements Initializable {
 
@@ -174,15 +175,14 @@ public class GameWindowController implements Initializable {
             }
             wordLabel.setTextFill(Paint.valueOf("green"));
             wordLabel.setUnderline(true);
-            setPlayerState(PlayerState.END_OF_ROUND);
+            setPlayerState(END_OF_ROUND);
             sendSyncSignal();
         }
         else button.setDisable(true);
         if (diffrence == 0) {
             updateLives();
         }
-        if (getRound().getLives() > 0) setTimer();
-        //TODO coś nie tak z timerem, nie zatrzymuje się po rundzie albo uruchamia na nowo z początkiem następnej
+        if (getPlayerState() == ROUND) setTimer();
     }
 
 
@@ -262,7 +262,8 @@ public class GameWindowController implements Initializable {
             Platform.runLater(() -> livesLabel.setText(String.valueOf(getRound().getLives())));
         }
         if (lives == 0) {
-            setPlayerState(PlayerState.LOSER);
+            timer.cancel();
+            setPlayerState(LOSER);
             for (Button but : buttons) {
                 but.setDisable(true);
             }
@@ -284,15 +285,26 @@ public class GameWindowController implements Initializable {
                 }
             }
             System.out.println(getPlayerState());
-            if (getPlayerState() == PlayerState.ROUND) {
+            if (getPlayerState() == ROUND) {
                 Platform.runLater(this::updateScores);
                 continue;
             }
-            if (getPlayerState() == PlayerState.END_OF_ROUND) {
+            if (getPlayerState() == END_OF_ROUND) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }
+                System.out.println(getPlayerState());
+                if (getPlayerState() == WINNER) {
+                    Platform.runLater(() -> {
+                        try {
+                            FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("chooseWindow.fxml")));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    break;
                 }
                 Platform.runLater(() -> {
                     try {
@@ -303,7 +315,7 @@ public class GameWindowController implements Initializable {
                 });
                 break;
             }
-            if (getPlayerState() == PlayerState.LOSER) {
+            if (getPlayerState() == LOSER) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {

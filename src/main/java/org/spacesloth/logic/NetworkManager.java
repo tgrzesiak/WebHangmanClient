@@ -6,11 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static org.spacesloth.logic.PlayerState.*;
+import static org.spacesloth.logic.PlayerState.WINNER;
 
 public class NetworkManager {
 
@@ -20,7 +21,7 @@ public class NetworkManager {
     private static OutputStream socketOS;
     private static Scanner scanner;
 
-    private static PlayerState playerState = PlayerState.WAIT_FOR_BEGINNING;
+    private volatile static PlayerState playerState = WAIT_FOR_BEGINNING;
     private volatile static int queueTimeout;
     private volatile static int countdown;
     private volatile static int playersCounter;
@@ -96,7 +97,7 @@ public class NetworkManager {
 
     public static void sendInt(int number) {
         try {
-            socketOS.write((String.valueOf(number)+"\n").getBytes());
+            socketOS.write((number +"\n").getBytes());
             System.out.println("Sent: "+number);
         } catch (IOException e) {
             System.out.println("Nieudane wysyłanie numeru (" + number + ")");
@@ -130,17 +131,19 @@ public class NetworkManager {
         }
     }
 
-    private static void confirmString(String str) {
+    private static boolean confirmString(String str) {
         if (!readString(str).equals(str)) {
             System.out.println("Odczytano błędne słowo (oczekiwane: " + str + ")");
+            return false;
             //exitGame();
         }
+        return true;
     }
 
     private static void readScores() {
         while (true) {
             String data = readString("fd:score");
-            if (data.equals("end") | data.equals("")) break;
+            if (data.equals("end") || data.equals("")) break;
             System.out.println(data);
             String[] values = data.split("-");
             String[] tmp = round.getOtherNamesScores();
@@ -155,16 +158,24 @@ public class NetworkManager {
         if (!scanner.hasNextInt()) confirmString("wait");
         else {
             queueTimeout = readInt("queueTimeout");
-            playerState = PlayerState.IN_QUEUE;
+            playerState = IN_QUEUE;
         }
         while(true) {
             if (!scanner.hasNextInt()) {
-                confirmString("win");
-                playerState = PlayerState.WINNER;
-                sendSyncSignal();
+                if(confirmString("win")) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        exitGame();
+                    }
+                    playerState = WINNER;
+                    System.out.println("Signal sent");
+                    sendSyncSignal();
+                    break;
+                }
             }
             countdown = readInt("countdown");
-            playerState = PlayerState.COUNTDOWN;
+            playerState = COUNTDOWN;
             sendSyncSignal();
 
             Timer countdownTimer = new Timer();
@@ -172,7 +183,7 @@ public class NetworkManager {
                 @Override
                 public void run() {
                     if (countdown-- > 0){
-                        playerState = PlayerState.COUNTDOWN;
+                        playerState = COUNTDOWN;
                         sendSyncSignal();
                     }
                 }
@@ -181,7 +192,7 @@ public class NetworkManager {
             playersCounter = readInt("playersCounter");
             System.out.println("playerCounter: "+ playersCounter);
             if (playersCounter == 1) {
-                playerState = PlayerState.TOO_FEW_PLAYERS;
+                playerState = TOO_FEW_PLAYERS;
                 countdownTimer.cancel();
                 sendSyncSignal();
                 continue;
@@ -197,11 +208,11 @@ public class NetworkManager {
             }
 
             round = new Round(word, roundNumber, playersCounter);
-            playerState = PlayerState.ROUND;
+            playerState = ROUND;
             sendSyncSignal();
 
             readScores();
-            if (playerState == PlayerState.LOSER) {
+            if (playerState == LOSER) {
                 System.out.println("przerwano");
                 break;
             }

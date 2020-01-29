@@ -67,8 +67,15 @@ public class WaitingWindowController implements Initializable {
                 break;
             }
             if (getPlayerState() == PlayerState.WINNER) {
-                Platform.runLater(() -> label.setText("WYGRANA!!"));
-                setPlayerState(PlayerState.IN_QUEUE);
+                disconnect();
+                Platform.runLater(() -> {
+                    try {
+                        FXMLLoader.load(Objects.requireNonNull(getClass().getClassLoader().getResource("chooseWindow.fxml")));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                break;
             }
         }
     }

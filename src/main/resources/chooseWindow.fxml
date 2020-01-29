@@ -6,16 +6,16 @@
 
 <AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.spacesloth.controllers.ChooseWindowController">
    <children>
-      <Label fx:id="titleLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="37.0" layoutY="49.0" prefHeight="116.0" prefWidth="526.0" text="Przegrana!" textAlignment="CENTER">
+      <Label fx:id="titleLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="37.0" layoutY="49.0" prefHeight="116.0" prefWidth="526.0" textAlignment="CENTER">
          <font>
-            <Font name="DejaVu Serif Bold" size="81.0" />
+            <Font name="DejaVu Serif Bold" size="75.0" />
          </font>
       </Label>
-      <Button fx:id="buttonNo" layoutX="422.0" layoutY="305.0" mnemonicParsing="false" onMouseClicked="#exitGame" text="Nie" textAlignment="CENTER">
+      <Button fx:id="buttonNo" focusTraversable="false" layoutX="422.0" layoutY="305.0" mnemonicParsing="false" onMouseClicked="#exitGame" text="Nie" textAlignment="CENTER">
          <font>
             <Font size="20.0" />
          </font></Button>
-      <Button fx:id="buttonYes" layoutX="113.0" layoutY="305.0" mnemonicParsing="false" onMouseClicked="#continueGame" text="Tak" textAlignment="CENTER">
+      <Button fx:id="buttonYes" focusTraversable="false" layoutX="113.0" layoutY="305.0" mnemonicParsing="false" onMouseClicked="#continueGame" text="Tak" textAlignment="CENTER">
          <font>
             <Font size="20.0" />
          </font></Button>
